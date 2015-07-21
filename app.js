@@ -7,7 +7,7 @@ function main() {
   sortPageResults(pageResults)
   var pagesToDisplay = mapPageResultsToDisplayPages(pageResults)
 
-  console.dir(pageResults);
+  console.dir(pagesToDisplay);
 }
 
 function search(query) {
