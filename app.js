@@ -1,6 +1,8 @@
+var WikiPage = require('./lib/wikiPage').Page;
+
 function main() {
   seed();
-  var searchResults = search('breed');
+  var searchResults = search('Cat');
   var mappedResults = mapSearchResultsToWeightedParagraphList(searchResults);
   var filteredByACL = filterWeightedParagraphByACL(mappedResults);
   var pageResults   = reduceWeightedListToPages(filteredByACL);
@@ -80,63 +82,9 @@ var index = require('lunr')(function() {
   this.ref('id');
 });
 
-// It's important to build the paragraph Id as a subset of the pageId so that we can pull paragraph look ups as address lookups.
-var myPages = [
-  {
-    'id': '0',
-    'title': 'Dogs',
-    'sections': [
-      {
-        'id': '0-0',
-        'title': 'Breeds',
-        'paragraphs': [
-          {
-            'id': '0-0-0',
-            'text': 'Crazy Pomeranions',
-            'acl': []
-          },
-          {
-            'id': '0-0-1',
-            'text': 'Crazy Rascals',
-            'acl': []
-          },
-          {
-            'id': '0-0-2',
-            'text': 'Fine Rascals',
-            'acl': []
-          }
-        ]
-      }
-    ]
-  }
-];
 
-function explodePagesIntoParagraphs(pages) {
-  var pageParagraphs = pages.map(function(currentValue, index, array) {
-    return explodeSectionsIntoParagraphWithPage(currentValue.sections, currentValue);
-  });
-  return Array.prototype.concat.apply([], pageParagraphs);
-}
 
-function explodeSectionsIntoParagraphWithPage(sections, page) {
-  var sectionParagraphs = sections.map(function(currentValue, index, array) {
-    return explodeParagraphsIntoParagraphsWithPageAndSection(currentValue.paragraphs, page, currentValue);
-  })
-  return Array.prototype.concat.apply([], sectionParagraphs);
-}
-
-function explodeParagraphsIntoParagraphsWithPageAndSection(paragraphs, page, section) {
-  return paragraphs.map(function(currentValue, index, array) {
-    return {
-      'pageId': page.id,
-      'id': currentValue.id,
-      'acl': currentValue.acl,
-      'text': currentValue.text,
-      'sectionText': section.title,
-      'pageText': page.title
-    };
-  });
-}
+var myPages = [];
 
 function getParagraphById(fullAddressId) {
   var pageId = fullAddressId.split('-')[0];
@@ -147,7 +95,27 @@ function getParagraphById(fullAddressId) {
 }
 
 function seed() {
-  var myParagraphs = explodePagesIntoParagraphs(myPages);
+  var dogPage = new WikiPage("Dogs");
+  var breedSection = dogPage.addSectionWithHeader("Breeds");
+  breedSection.addParagraphWithText("Crazy Pomeranions");
+  breedSection.addParagraphWithText("Crazy Rascals");
+  breedSection.addParagraphWithText("Fine Rascals");
+  myPages.push(dogPage);
+
+  var catPage = new WikiPage("Cats");
+  var breedSection = catPage.addSectionWithHeader("Breeds");
+  var careSection = catPage.addSectionWithHeader("Care");
+  breedSection.addParagraphWithText("Sleek longhairs");
+  breedSection.addParagraphWithText("Ruffled grumpycats");
+  breedSection.addParagraphWithText("Crazy siamese");
+  careSection.addParagraphWithText("Lots of head scratchies");
+  myPages.push(catPage);
+
+  var myParagraphs = [];
+  for (var i = 0; i < myPages.length; i++) {
+    myParagraphs = myParagraphs.concat(myPages[i].standaloneParagraphs());
+  }
+  console.dir(myParagraphs)
   console.log('Seeding index with myPages seed.');
   for (var i = 0; i < myParagraphs.length; i++) {
     index.add(myParagraphs[i]);
