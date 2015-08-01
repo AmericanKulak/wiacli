@@ -39,3 +39,9 @@ function printPage(object) {
 }
 
 main();
+
+
+// In order to start the application,
+//   Tack on the authorizer (with failure logger)
+//   Tack on the request logger.
+//   Tack on the various Routers from subsections.
