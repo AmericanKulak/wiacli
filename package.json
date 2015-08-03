@@ -4,6 +4,8 @@
   "description": "alpha",
   "main": "app.js",
   "dependencies": {
+    "express": "^4.13.2",
+    "jade": "^1.11.0",
     "lunr": "*"
   },
   "devDependencies": {},
