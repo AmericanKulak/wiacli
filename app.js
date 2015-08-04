@@ -5,6 +5,7 @@
 
 var app = require('express')();
 var logger = require('./lib/logger').Logger;
+var Identity = require('./lib/identity')
 app.set('view engine', 'jade');
 app.set('views', ['./views', './lib/wiki/views']);
 
@@ -12,6 +13,11 @@ app.set('views', ['./views', './lib/wiki/views']);
 
 
 app.use(logger);
+app.use(function(req, res, next) {
+  var currentUser = /*getUserFromAuthToken*/ Identity.getUserById('PlayerTwo');
+  req.user = currentUser;
+  next();
+})
 
 app.use('/wiki', require('./lib/wiki'));
 
